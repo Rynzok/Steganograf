@@ -72,11 +72,11 @@ namespace Steganograf
         }
     }
 
-    public class System
+    public class Systema
     {
-        private Wave signal;
+        public Wave signal;
         private BinaryMessage message;
-        private Key key;
+        public Key key;
 
         private double echoVolume = 0.3;
         private int hiddenBitsPerSecond = 16;
@@ -95,7 +95,7 @@ namespace Steganograf
         private int samplesPerMessage;
         private List<int[]> stegochannels;
 
-        public System(Wave signal, BinaryMessage message, Key key)
+        public Systema(Wave signal, BinaryMessage message, Key key)
         {
             this.signal = signal;
             this.message = message;

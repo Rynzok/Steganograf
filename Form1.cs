@@ -38,6 +38,16 @@ namespace Steganograf
                 {
                     int chennals = reader.WaveFormat.Channels;
                     label4.Text = chennals.ToString();
+
+                    Wave signal = new Wave(path);
+                    BinaryMessage message = new BinaryMessage(textBox1.Text);
+                    Key key = new Key();
+
+                    Systema stegosystem = new Systema(signal, message, key);
+                    stegosystem.CreateStego();
+                    stegosystem.signal.CreateStegoaudio(stegosystem.key);
+
+                    label4.Text = "Соранено в папку с проектом";
                 }
             }
         }
