@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace Steganograf
 {
-    class Wave
+    public class Wave
     {
         private static Dictionary<int, Type> types = new Dictionary<int, Type>
     {
@@ -16,13 +16,13 @@ namespace Steganograf
     };
 
         private WaveFileReader wavein;
-        private int channelsNum;
+        public int channelsNum;
         private int bytesPerSample;
-        private int frameRate;
-        private int framesNum;
+        public int frameRate;
+        public int framesNum;
         private Array content;
-        private List<Array> channels;
-        private List<int> stego;
+        public List<Array> channels;
+        public List<int> stego;
         private int switching;
 
         private int decreasingFrom;
@@ -53,12 +53,12 @@ namespace Steganograf
 
         private void SetDecreasingFrom(Key key)
         {
-            decreasingFrom = Math.Max(0, key.Begin - switching) * channelsNum;
+            decreasingFrom = Math.Max(0, key.begin - switching) * channelsNum;
         }
 
         private void SetIncreasingTo(Key key)
         {
-            increasingTo = Math.Min(framesNum, key.End + switching) * channelsNum;
+            increasingTo = Math.Min(framesNum, key.end + switching) * channelsNum;
         }
 
         private byte[] SetAmplitude(IEnumerable<int> instAmp)
@@ -72,7 +72,7 @@ namespace Steganograf
             return content.ToArray();
         }
 
-        private Array UniteChannels(IEnumerable<Array> channels)
+        public List<int> UniteChannels(IEnumerable<Array> channels)
         {
             List<int> content = new List<int>();
             foreach (var channel in channels)
@@ -82,7 +82,7 @@ namespace Steganograf
                     content.Add((int)channel.GetValue(i));
                 }
             }
-            return content.ToArray();
+            return content;
         }
 
         private double DecSignal(int i, int begin)
@@ -110,12 +110,12 @@ namespace Steganograf
                 waveOut.Write((byte[])content, 0, decreasingFrom);
               /*  waveOut.WriteBytes(GetSubArray(content, 0, decreasingFrom));  */      // begin
 
-                var dec = GetDecreasingAmplitude(content, decreasingFrom, key.Begin * channelsNum);
+                var dec = GetDecreasingAmplitude(content, decreasingFrom, key.begin * channelsNum);
                 /*  waveOut.WriteByte(SetAmplitude(dec)); */       // decreasing
                 waveOut.Write(SetAmplitude(dec), 0, SetAmplitude(dec).Length);
                 waveOut.Write(SetAmplitude(stego), 0, SetAmplitude(stego).Length);
 
-                var inc = GetIncreasingAmplitude(content, key.End * channelsNum, increasingTo, channelsNum);
+                var inc = GetIncreasingAmplitude(content, key.end * channelsNum, increasingTo, channelsNum);
                 waveOut.Write(SetAmplitude(inc), 0, SetAmplitude(inc).Length);        // increasing
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
             }
@@ -174,11 +174,5 @@ namespace Steganograf
             Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
             return array;
         }
-    }
-
-    public class Key
-    {
-        public int Begin { get; set; }
-        public int End { get; set; }
     }
 }
