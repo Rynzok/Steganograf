@@ -2,7 +2,9 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
+
 
 namespace Steganograf
 {
@@ -143,14 +145,18 @@ namespace Steganograf
             }
             FastFourierTransform.FFT(true , 0 , dft);
 
-            List<double> sqrLg = new List<double>();
+            List<Complex> sqrLg = new List<Complex>();
             foreach (Complex elem in dft)
             {
-                sqrLg.Add(Math.Pow(Complex.Log(elem), 2));;
+                ComplexLog buff = new ComplexLog(elem);
+                Complex nbuff = new Complex();
+                nbuff.X = (float)buff.comp.Real;
+                nbuff.Y = (float)buff.comp.Imaginary;
+                sqrLg.Add(nbuff);
             }
 
             Complex[] ift = sqrLg.ToArray();
-            Fourier.Inverse(ift);
+            FastFourierTransform.FFT(false, 0, ift);
 
             int i0 = extension * Key.delta[0], i1 = extension * Key.delta[1];
             int imax0 = i0, imax1 = i1;
@@ -177,7 +183,9 @@ namespace Steganograf
 
             while (counter < Key.end)
             {
-                List<double> section = Signal.channels[0].GetRange(counter, SamplesPerSection);
+                //List<double> section = Signal.channels[0].GetRange(counter, SamplesPerSection);
+                var segment = new ArraySegment<double>((double[])Signal.channels[0], counter, counter + SamplesPerSection);
+                List<double> section = segment.ToList();
                 Message.Bits.Add(int.Parse(DecodeSection(section)));
 
                 counter += SamplesPerSection;
