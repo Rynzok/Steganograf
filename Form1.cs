@@ -59,8 +59,8 @@ namespace Steganograf
 
         private void buttonCoding_Click(object sender, EventArgs e)
         {
-            Wave signal = new Wave(labelText.Text);
-            BinaryMessage message = new BinaryMessage(labelAudio.Text);
+            Wave signal = new Wave(labelAudio.Text);
+            BinaryMessage message = new BinaryMessage(labelText.Text);
             Key key = new Key();
 
             Systema stegosystem = new Systema(signal, message, key);

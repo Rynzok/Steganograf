@@ -154,12 +154,12 @@ namespace Steganograf
         //    return subArray;
         //}
 
-        private static List<byte> GetDecreasingAmplitude(Array content, int start, int end)
+        private static List<byte> GetDecreasingAmplitude(List<byte> content, int start, int end)
         {
             List<byte> amplitude = new List<byte>();
             for (int i = start; i < end; i++)
             {
-                int value = (int)content.GetValue(i);
+                int value = content[i];
                 amplitude.Add((byte)(value * (1.0 - 0.2 * (i - start) / (end - start))));
             }
             return amplitude;
