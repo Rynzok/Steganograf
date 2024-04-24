@@ -93,7 +93,7 @@ namespace Steganograf
         private int diff;
 
         private int samplesPerMessage;
-        private List<int[]> stegochannels;
+        private List<List<byte>> stegochannels;
 
         public Systema(Wave signal, BinaryMessage message, Key key)
         {
@@ -121,7 +121,7 @@ namespace Steganograf
             key.begin = GetBegin();
             key.end = key.begin + samplesPerMessage;
 
-            stegochannels = new List<int[]>();
+            stegochannels = new List<List<byte>>();
         }
 
         private int CountSamples()
@@ -167,7 +167,7 @@ namespace Steganograf
             return 0.0;
         }
 
-        private double GetEcho(int[] channel, int k, int n, int counter)
+        private double GetEcho(List<byte> channel, int k, int n, int counter)
         {
             double echo0 = volume0 * echoVolume * (k >= key.delta[0] ? channel[k - key.delta[0]] : 0) *
                            (1 - SmoothingSignal(counter, k - n));
@@ -176,19 +176,19 @@ namespace Steganograf
             return echo0 + echo1;
         }
 
-        private int[] EmbedStegoMessage(int[] channel)
+        private List<byte> EmbedStegoMessage(List<byte> channel)
         {
             int secondCounter = key.begin / signal.frameRate;
             int sectionCounter = 0;
             double volume = 1.0 - echoVolume * volumeMax;
-            List<int> stegoChannel = new List<int>();
+            List<byte> stegoChannel = new List<byte>();
 
             for (int counter = 0; counter < message.bitsLength; counter++)
             {
                 int n = secondCounter * signal.frameRate + sectionCounter * samplesPerSection;
                 for (int k = n; k < n + samplesPerSection; k++)
                 {
-                    stegoChannel.Add((int)Math.Floor(volume * channel[k] + GetEcho(channel, k, n, counter)));
+                    stegoChannel.Add((byte)Math.Floor(volume * channel[k] + GetEcho(channel, k, n, counter)));
                 }
                 sectionCounter++;
 
@@ -196,30 +196,35 @@ namespace Steganograf
                 {
                     for (int j = n + samplesPerSection; j < n + samplesPerSection + diff; j++)
                     {
-                        stegoChannel.Add((int)Math.Floor(volume * channel[j] + GetEcho(channel, j, n, counter)));
+                        stegoChannel.Add((byte)Math.Floor(volume * channel[j] + GetEcho(channel, j, n, counter)));
                     }
                     sectionCounter = 0;
                     secondCounter++;
                 }
             }
 
-            return stegoChannel.ToArray();
+            return stegoChannel;
         }
 
         public void CreateStego()
         {
-            stegochannels.Add(EmbedStegoMessage((int[])signal.channels[0]));
+            stegochannels.Add(EmbedStegoMessage(signal.channels[0]));
 
             if (signal.channelsNum == 2)
             {
                 //stegochannels.Add(signal.channels[1].Skip(key.begin).Take(key.end - key.begin).ToArray());
-                var segment = new ArraySegment<int> ((int[])signal.channels[1], key.begin, key.end);
-                stegochannels.Add(segment.Array);
+                //var segment = new ArraySegment<byte>(signal.channels[1], key.begin, key.end);
+                List<byte> segment = new List<byte>();
+                for (int i = key.begin; i < key.end; i++)
+                {
+                    segment.Add(signal.channels[1][i]);
+                }
+                stegochannels.Add(segment);
                 signal.stego = signal.UniteChannels(stegochannels);
             }
             else
             {
-                signal.stego = stegochannels[0].ToList<int>();
+                signal.stego = stegochannels[0];
             }
 
             key.Save();

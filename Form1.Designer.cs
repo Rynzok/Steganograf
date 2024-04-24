@@ -95,9 +95,10 @@
             // 
             // buttonCoding
             // 
+            this.buttonCoding.AutoSize = true;
             this.buttonCoding.Location = new System.Drawing.Point(16, 188);
             this.buttonCoding.Name = "buttonCoding";
-            this.buttonCoding.Size = new System.Drawing.Size(75, 23);
+            this.buttonCoding.Size = new System.Drawing.Size(89, 23);
             this.buttonCoding.TabIndex = 7;
             this.buttonCoding.Text = "Закодировать";
             this.buttonCoding.UseVisualStyleBackColor = true;

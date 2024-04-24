@@ -3,6 +3,7 @@ using System.IO;
 using System.Collections.Generic;
 using NAudio.Wave;
 using System.Runtime.InteropServices;
+using System.Linq;
 
 namespace Steganograf
 {
@@ -21,8 +22,8 @@ namespace Steganograf
         public int frameRate;
         public int framesNum;
         private Array content;
-        public List<Array> channels;
-        public List<int> stego;
+        public List<List<byte>> channels;
+        public List<byte> stego;
         private int switching;
 
         private int decreasingFrom;
@@ -38,13 +39,13 @@ namespace Steganograf
             content = ReadFrames(wavein, framesNum);
             wavein.Close();
 
-            channels = new List<Array>();
+            channels = new List<List<byte>>();
             for (int n = 0; n < channelsNum; n++)
             {
                 channels.Add(ExtractChannel(content, n, channelsNum));
             }
 
-            stego = new List<int>();
+            stego = new List<byte>();
             switching = 3 * frameRate;
 
             decreasingFrom = 0;
@@ -61,7 +62,7 @@ namespace Steganograf
             increasingTo = Math.Min(framesNum, key.end + switching) * channelsNum;
         }
 
-        private byte[] SetAmplitude(IEnumerable<int> instAmp)
+        private byte[] SetAmplitude(IEnumerable<byte> instAmp)
         {
             List<byte> content = new List<byte>();
             foreach (int a in instAmp)
@@ -72,14 +73,14 @@ namespace Steganograf
             return content.ToArray();
         }
 
-        public List<int> UniteChannels(IEnumerable<Array> channels)
+        public List<byte> UniteChannels(List<List<byte>> channels)
         {
-            List<int> content = new List<int>();
+            List<byte> content = new List<byte>();
             foreach (var channel in channels)
             {
-                for (int i = 0; i < channel.Length; i++)
+                for (int i = 0; i < channel.Count; i++)
                 {
-                    content.Add((int)channel.GetValue(i));
+                    content.Add((byte)channel[i]);
                 }
             }
             return content;
@@ -124,14 +125,15 @@ namespace Steganograf
         private static Array ReadFrames(WaveFileReader reader, int frames)
         {
             byte[] buffer = new byte[frames * reader.WaveFormat.BlockAlign];
-            int read = reader.Read(buffer, 0, buffer.Length);
-            return ConvertByteArrayToArray(buffer, types[reader.WaveFormat.BitsPerSample / 8]);
+            //int read = reader.Read(buffer, 0, buffer.Length);
+            //return ConvertByteArrayToArray(buffer, types[reader.WaveFormat.BitsPerSample / 8]);
+            return buffer;
         }
 
-        private static Array ExtractChannel(Array content, int channel, int channels)
+        private static List<byte> ExtractChannel(Array content, int channel, int channels)
         {
             //Array channelContent = Array.CreateInstance(types[channels], content.Length / channels);
-            List<int> channelContent = new List<int>();
+            List<byte> channelContent = new List<byte>();
             for (int i = channel; i < content.Length; i += channels)
             {
                 //int index = i / channels;
@@ -140,36 +142,36 @@ namespace Steganograf
                 //    index = 0;
                 //}
                 //channelContent.SetValue(content.GetValue(i), index);
-                channelContent.Add((int)content.GetValue(i));
+                channelContent.Add((byte)content.GetValue(i));
             }
-            return channelContent.ToArray();
+            return channelContent;
         }
 
-        private static Array GetSubArray(Array array, int start, int length)
-        {
-            Array subArray = Array.CreateInstance(array.GetType().GetElementType(), length);
-            Array.Copy(array, start, subArray, 0, length);
-            return subArray;
-        }
+        //private static Array GetSubArray(Array array, int start, int length)
+        //{
+        //    Array subArray = Array.CreateInstance(array.GetType().GetElementType(), length);
+        //    Array.Copy(array, start, subArray, 0, length);
+        //    return subArray;
+        //}
 
-        private static List<int> GetDecreasingAmplitude(Array content, int start, int end)
+        private static List<byte> GetDecreasingAmplitude(Array content, int start, int end)
         {
-            List<int> amplitude = new List<int>();
+            List<byte> amplitude = new List<byte>();
             for (int i = start; i < end; i++)
             {
                 int value = (int)content.GetValue(i);
-                amplitude.Add((int)(value * (1.0 - 0.2 * (i - start) / (end - start))));
+                amplitude.Add((byte)(value * (1.0 - 0.2 * (i - start) / (end - start))));
             }
             return amplitude;
         }
 
-        private static List<int> GetIncreasingAmplitude(Array content, int start, int end, int channels)
+        private static List<byte> GetIncreasingAmplitude(Array content, int start, int end, int channels)
         {
-            List<int> amplitude = new List<int>();
+            List<byte> amplitude = new List<byte>();
             for (int i = start; i < end; i++)
             {
                 int value = (int)content.GetValue(i);
-                amplitude.Add((int)(value * (0.8 + 0.2 * (i - start) / (end - start))));
+                amplitude.Add((byte)(value * (0.8 + 0.2 * (i - start) / (end - start))));
             }
             return amplitude;
         }

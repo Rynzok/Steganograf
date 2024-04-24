@@ -34,7 +34,7 @@ namespace Steganograf
             if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
             {
                 String path = dialog.FileName; // get name of file
-                labelText.Text = path;
+                labelAudio.Text = path;
                 //using (WaveFileReader reader = new WaveFileReader(path)) // do anything you want, e.g. read it
                 //{
                 //    int chennals = reader.WaveFormat.Channels;
@@ -53,7 +53,7 @@ namespace Steganograf
             if (dialog.ShowDialog() == DialogResult.OK) // if user clicked OK
             {
                 String path = dialog.FileName; // get name of file
-                labelAudio.Text = path;
+                labelText.Text = path;
             }
         }
 

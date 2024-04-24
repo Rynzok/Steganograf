@@ -184,9 +184,14 @@ namespace Steganograf
             while (counter < Key.end)
             {
                 //List<double> section = Signal.channels[0].GetRange(counter, SamplesPerSection);
-                var segment = new ArraySegment<double>((double[])Signal.channels[0], counter, counter + SamplesPerSection);
-                List<double> section = segment.ToList();
-                Message.Bits.Add(int.Parse(DecodeSection(section)));
+                //var segment = new ArraySegment<double>((double[])Signal.channels[0], counter, counter + SamplesPerSection);
+                List<double> segment = new List<double>();
+                for (int i = counter; i < counter + SamplesPerSection; i++)
+                {
+                    segment.Add(Signal.channels[1][i]);
+                }
+                //List<double> section = segment.ToList<double>();
+                Message.Bits.Add(int.Parse(DecodeSection(segment)));
 
                 counter += SamplesPerSection;
                 sectionCounter++;
