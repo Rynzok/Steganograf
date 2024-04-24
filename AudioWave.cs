@@ -130,12 +130,19 @@ namespace Steganograf
 
         private static Array ExtractChannel(Array content, int channel, int channels)
         {
-            Array channelContent = Array.CreateInstance(types[channels], content.Length / channels);
+            //Array channelContent = Array.CreateInstance(types[channels], content.Length / channels);
+            List<int> channelContent = new List<int>();
             for (int i = channel; i < content.Length; i += channels)
             {
-                channelContent.SetValue(content.GetValue(i), i / channels);
+                //int index = i / channels;
+                //if (i == 0)
+                //{
+                //    index = 0;
+                //}
+                //channelContent.SetValue(content.GetValue(i), index);
+                channelContent.Add((int)content.GetValue(i));
             }
-            return channelContent;
+            return channelContent.ToArray();
         }
 
         private static Array GetSubArray(Array array, int start, int length)
