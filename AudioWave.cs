@@ -102,21 +102,21 @@ namespace Steganograf
 
         public void CreateStegoaudio(Key key)
         {
-            string outputWav = "out.wav";
+            string outputWav = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\out.wav";
             using (WaveFileWriter waveOut = new WaveFileWriter(outputWav, wavein.WaveFormat))
             {
                 SetDecreasingFrom(key);
                 SetIncreasingTo(key);
 
                 waveOut.Write((byte[])content, 0, decreasingFrom);
-              /*  waveOut.WriteBytes(GetSubArray(content, 0, decreasingFrom));  */      // begin
-
-                var dec = GetDecreasingAmplitude(content, decreasingFrom, key.begin * channelsNum);
+                /*  waveOut.WriteBytes(GetSubArray(content, 0, decreasingFrom));  */      // begin
+                List<byte> list = content.Cast<byte>().ToList();
+                var dec = GetDecreasingAmplitude(list, decreasingFrom, key.begin * channelsNum);
                 /*  waveOut.WriteByte(SetAmplitude(dec)); */       // decreasing
                 waveOut.Write(SetAmplitude(dec), 0, SetAmplitude(dec).Length);
                 waveOut.Write(SetAmplitude(stego), 0, SetAmplitude(stego).Length);
 
-                var inc = GetIncreasingAmplitude(content, key.end * channelsNum, increasingTo, channelsNum);
+                var inc = GetIncreasingAmplitude(list, key.end * channelsNum, increasingTo, channelsNum);
                 waveOut.Write(SetAmplitude(inc), 0, SetAmplitude(inc).Length);        // increasing
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
             }
@@ -125,7 +125,7 @@ namespace Steganograf
         private static Array ReadFrames(WaveFileReader reader, int frames)
         {
             byte[] buffer = new byte[frames * reader.WaveFormat.BlockAlign];
-            //int read = reader.Read(buffer, 0, buffer.Length);
+            int read = reader.Read(buffer, 0, buffer.Length);
             //return ConvertByteArrayToArray(buffer, types[reader.WaveFormat.BitsPerSample / 8]);
             return buffer;
         }
@@ -165,12 +165,12 @@ namespace Steganograf
             return amplitude;
         }
 
-        private static List<byte> GetIncreasingAmplitude(Array content, int start, int end, int channels)
+        private static List<byte> GetIncreasingAmplitude(List<byte> content, int start, int end, int channels)
         {
             List<byte> amplitude = new List<byte>();
             for (int i = start; i < end; i++)
             {
-                int value = (int)content.GetValue(i);
+                int value = content[i];
                 amplitude.Add((byte)(value * (0.8 + 0.2 * (i - start) / (end - start))));
             }
             return amplitude;
