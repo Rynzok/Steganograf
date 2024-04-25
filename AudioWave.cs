@@ -9,12 +9,12 @@ namespace Steganograf
 {
     public class Wave
     {
-        private static Dictionary<int, Type> types = new Dictionary<int, Type>
-    {
-        { 1, typeof(sbyte) },
-        { 2, typeof(short) },
-        { 4, typeof(int) }
-    };
+    //    private static Dictionary<int, Type> types = new Dictionary<int, Type>
+    //{
+    //    { 1, typeof(sbyte) },
+    //    { 2, typeof(short) },
+    //    { 4, typeof(int) }
+    //};
 
         private WaveFileReader wavein;
         public int channelsNum;
@@ -54,23 +54,12 @@ namespace Steganograf
 
         private void SetDecreasingFrom(Key key)
         {
-            decreasingFrom = Math.Max(0, key.begin - switching) * channelsNum;
+            decreasingFrom = Math.Max(0, key.Begin - switching) * channelsNum;
         }
 
         private void SetIncreasingTo(Key key)
         {
-            increasingTo = Math.Min(framesNum, key.end + switching) * channelsNum;
-        }
-
-        private byte[] SetAmplitude(IEnumerable<byte> instAmp)
-        {
-            List<byte> content = new List<byte>();
-            foreach (int a in instAmp)
-            {
-                byte[] ampInBytes = BitConverter.GetBytes(a);
-                content.AddRange(ampInBytes);
-            }
-            return content.ToArray();
+            increasingTo = Math.Min(framesNum, key.End + switching) * channelsNum;
         }
 
         public List<byte> UniteChannels(List<List<byte>> channels)
@@ -80,24 +69,10 @@ namespace Steganograf
             {
                 for (int i = 0; i < channel.Count; i++)
                 {
-                    content.Add((byte)channel[i]);
+                    content.Add(channel[i]);
                 }
             }
             return content;
-        }
-
-        private double DecSignal(int i, int begin)
-        {
-            if (channelsNum == 2 && i % 2 == 1)
-                return 1.0;
-            return 1.0 - 0.2 * i / (begin - decreasingFrom);
-        }
-
-        private double IncSignal(int i, int end)
-        {
-            if (channelsNum == 2 && i % 2 == 1)
-                return 1.0;
-            return 0.8 + 0.2 * i / (increasingTo - end);
         }
 
         public void CreateStegoaudio(Key key)
@@ -108,16 +83,18 @@ namespace Steganograf
                 SetDecreasingFrom(key);
                 SetIncreasingTo(key);
 
-                waveOut.Write((byte[])content, 0, decreasingFrom);
-                /*  waveOut.WriteBytes(GetSubArray(content, 0, decreasingFrom));  */      // begin
-                List<byte> list = content.Cast<byte>().ToList();
-                var dec = GetDecreasingAmplitude(list, decreasingFrom, key.begin * channelsNum);
-                /*  waveOut.WriteByte(SetAmplitude(dec)); */       // decreasing
-                waveOut.Write(SetAmplitude(dec), 0, SetAmplitude(dec).Length);
-                waveOut.Write(SetAmplitude(stego), 0, SetAmplitude(stego).Length);
+                waveOut.Write((byte[])content, 0, decreasingFrom); // begin
 
-                var inc = GetIncreasingAmplitude(list, key.end * channelsNum, increasingTo, channelsNum);
-                waveOut.Write(SetAmplitude(inc), 0, SetAmplitude(inc).Length);        // increasing
+                List<byte> list = content.Cast<byte>().ToList();
+                var dec = GetDecreasingAmplitude(list, decreasingFrom, key.Begin * channelsNum);
+
+                waveOut.Write(dec.ToArray(), 0, dec.Count); // decreasing
+
+                waveOut.Write(stego.ToArray(), 0, stego.Count); //Write code signal
+
+                var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
+                waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
+
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
             }
         }
@@ -126,33 +103,19 @@ namespace Steganograf
         {
             byte[] buffer = new byte[frames * reader.WaveFormat.BlockAlign];
             int read = reader.Read(buffer, 0, buffer.Length);
-            //return ConvertByteArrayToArray(buffer, types[reader.WaveFormat.BitsPerSample / 8]);
             return buffer;
         }
 
         private static List<byte> ExtractChannel(Array content, int channel, int channels)
         {
-            //Array channelContent = Array.CreateInstance(types[channels], content.Length / channels);
             List<byte> channelContent = new List<byte>();
             for (int i = channel; i < content.Length; i += channels)
             {
-                //int index = i / channels;
-                //if (i == 0)
-                //{
-                //    index = 0;
-                //}
-                //channelContent.SetValue(content.GetValue(i), index);
                 channelContent.Add((byte)content.GetValue(i));
             }
             return channelContent;
         }
 
-        //private static Array GetSubArray(Array array, int start, int length)
-        //{
-        //    Array subArray = Array.CreateInstance(array.GetType().GetElementType(), length);
-        //    Array.Copy(array, start, subArray, 0, length);
-        //    return subArray;
-        //}
 
         private static List<byte> GetDecreasingAmplitude(List<byte> content, int start, int end)
         {
@@ -165,6 +128,7 @@ namespace Steganograf
             return amplitude;
         }
 
+
         private static List<byte> GetIncreasingAmplitude(List<byte> content, int start, int end, int channels)
         {
             List<byte> amplitude = new List<byte>();
@@ -176,12 +140,5 @@ namespace Steganograf
             return amplitude;
         }
 
-        private static Array ConvertByteArrayToArray(byte[] bytes, Type type)
-        {
-            int length = bytes.Length / Marshal.SizeOf(type);
-            Array array = Array.CreateInstance(type, length);
-            Buffer.BlockCopy(bytes, 0, array, 0, bytes.Length);
-            return array;
-        }
     }
 }

@@ -14,7 +14,6 @@ namespace Steganograf
     {
         public List<int> bits;
         private StreamReader input;
-        //private HammingCoder code;
         public double average;
         public int bitsLength;
 
@@ -36,65 +35,29 @@ namespace Steganograf
 
             average = bits.Average();
             bitsLength = bits.Count;
-            //code = new HammingCoder();
-
-            //foreach (char ch in input.ReadToEnd())
-            //{
-            //    int symbOrd = ch;
-            //    //string binOrd = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
-            //    string binOrd1 = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
-            //    BitArray binOrd = new BitArray(new int[] { symbOrd });
-            //    for (int i = 0; i < binOrd.Length / 2; i++)
-            //    {
-            //        if (binOrd[i]) bits.Add(1);
-            //        else bits.Add(0);
-            //    }
-            //}
-            //List<int> s = new List<int>();
-            //foreach (bool b in binOrd)
-            //{
-            //    if (b) s.Add(1);
-            //    else s.Add(0);
-            //}
-            //bits.Add(s[0]);
-            //string left = binOrd.Substring(0, 4);
-            //string encodedLeft = code.Encode(string.Join("", left.Select(c => int.Parse(c.ToString())).ToArray()));
-            //foreach (string k in left.Split())
-            //{
-            //    bits.Add(int.Parse(k));
-            //}
-
-            //string right = binOrd.Substring(4);
-            //string encodedRight = code.Encode(string.Join("", right.Select(c => int.Parse(c.ToString())).ToArray()));
-            //foreach (string k in right.Split())
-            //{
-            //    bits.Add(int.Parse(k));
-            //}
-
-
-
+            
         }
     }
 
     public class Key
     {
-        public List<int> delta { get; set; }
-        public int begin { get; set; }
-        public int end { get; set; }
-        public string output_txt { get; set; } = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\key.txt";
+        public List<int> Delta { get; set; }
+        public int Begin { get; set; }
+        public int End { get; set; }
+        public string Output_txt { get; set; } = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\key.txt";
 
         public Key()
         {
-            delta = new List<int>();
-            begin = 0;
-            end = 0;
+            Delta = new List<int>();
+            Begin = 0;
+            End = 0;
         }
 
         public void Save()
         {
-            using (StreamWriter output = new StreamWriter(output_txt))
+            using (StreamWriter output = new StreamWriter(Output_txt))
             {
-                output.Write(string.Join(" ", delta[0], delta[1], begin, end));
+                output.Write(string.Join(" ", Delta[0], Delta[1], Begin, End));
             }
         }
     }
@@ -132,21 +95,21 @@ namespace Steganograf
             {
                 volume0 = volumeMax;
                 volume1 = volumeMin;
-                key.delta = new List<int> { deltaMax, deltaMin };
+                key.Delta = new List<int> { deltaMax, deltaMin };
             }
             else
             {
                 volume0 = volumeMin;
                 volume1 = volumeMax;
-                key.delta = new List<int> { deltaMin, deltaMax };
+                key.Delta = new List<int> { deltaMin, deltaMax };
             }
 
             samplesPerSection = signal.frameRate / hiddenBitsPerSecond;
             diff = signal.frameRate % hiddenBitsPerSecond;
 
             samplesPerMessage = CountSamples();
-            key.begin = GetBegin();
-            key.end = key.begin + samplesPerMessage;
+            key.Begin = GetBegin();
+            key.End = key.Begin + samplesPerMessage;
 
             stegochannels = new List<List<byte>>();
         }
@@ -196,16 +159,16 @@ namespace Steganograf
 
         private double GetEcho(List<byte> channel, int k, int n, int counter)
         {
-            double echo0 = volume0 * echoVolume * (k >= key.delta[0] ? channel[k - key.delta[0]] : 0) *
+            double echo0 = volume0 * echoVolume * (k >= key.Delta[0] ? channel[k - key.Delta[0]] : 0) *
                            (1 - SmoothingSignal(counter, k - n));
-            double echo1 = volume1 * echoVolume * (k >= key.delta[1] ? channel[k - key.delta[1]] : 0) *
+            double echo1 = volume1 * echoVolume * (k >= key.Delta[1] ? channel[k - key.Delta[1]] : 0) *
                            SmoothingSignal(counter, k - n);
             return echo0 + echo1;
         }
 
         private List<byte> EmbedStegoMessage(List<byte> channel)
         {
-            int secondCounter = key.begin / signal.frameRate;
+            int secondCounter = key.Begin / signal.frameRate;
             int sectionCounter = 0;
             double volume = 1.0 - echoVolume * volumeMax;
             List<byte> stegoChannel = new List<byte>();
@@ -239,14 +202,7 @@ namespace Steganograf
 
             if (signal.channelsNum == 2)
             {
-                //stegochannels.Add(signal.channels[1].Skip(key.begin).Take(key.end - key.begin).ToArray());
-                //var segment = new ArraySegment<byte>(signal.channels[1], key.begin, key.end);
-                //List<byte> segment = new List<byte>();
-                //for (int i = key.begin; i < key.end; i++)
-                //{
-                //    segment.Add(signal.channels[1][i]);
-                //}
-                List<byte> segment = signal.channels[1].GetRange(key.begin, key.end);
+                List<byte> segment = signal.channels[1].GetRange(key.Begin, key.End);
                 stegochannels.Add(segment);
                 signal.stego = signal.UniteChannels(stegochannels);
             }
