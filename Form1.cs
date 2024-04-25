@@ -69,5 +69,17 @@ namespace Steganograf
 
             labelAudio.Text = "Соранено в папку с проектом";
         }
+
+        private void buttonDec_Click(object sender, EventArgs e)
+        {
+            Wave signal = new Wave(labelAudio.Text);
+            BinaryMessageDec message = new BinaryMessageDec();
+            KeyDec key = new KeyDec(labelText.Text);
+
+            SystemDec stegosystem = new SystemDec(signal, message, key);
+            stegosystem.ExtractStegomessage();
+            labelAudio.Text = "Соранено в папку с проектом";
+
+        }
     }
 }

@@ -25,12 +25,11 @@ namespace Steganograf
 
             foreach (char ch in input.ReadToEnd())
             {
-                int symbOrd = (int)ch;
+                int symbOrd = ch;
                 string binOrd = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
 
                 string left = binOrd.Substring(0, 4);
                 string encodedLeft = code.Encode(string.Join("", left.Select(c => int.Parse(c.ToString())).ToArray()));
-                //bits.AddRange(encodedLeft);
                 foreach (string k in encodedLeft.Split())
                 {
                     bits.Add(int.Parse(k));
@@ -54,7 +53,7 @@ namespace Steganograf
         public List<int> delta { get; set; }
         public int begin { get; set; }
         public int end { get; set; }
-        public string output_txt { get; set; } = "key.txt";
+        public string output_txt { get; set; } = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\key.txt";
 
         public Key()
         {
@@ -214,11 +213,12 @@ namespace Steganograf
             {
                 //stegochannels.Add(signal.channels[1].Skip(key.begin).Take(key.end - key.begin).ToArray());
                 //var segment = new ArraySegment<byte>(signal.channels[1], key.begin, key.end);
-                List<byte> segment = new List<byte>();
-                for (int i = key.begin; i < key.end; i++)
-                {
-                    segment.Add(signal.channels[1][i]);
-                }
+                //List<byte> segment = new List<byte>();
+                //for (int i = key.begin; i < key.end; i++)
+                //{
+                //    segment.Add(signal.channels[1][i]);
+                //}
+                List<byte> segment = signal.channels[1].GetRange(key.begin, key.end);
                 stegochannels.Add(segment);
                 signal.stego = signal.UniteChannels(stegochannels);
             }

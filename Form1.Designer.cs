@@ -35,6 +35,7 @@
             this.labelAudio = new System.Windows.Forms.Label();
             this.buttonText = new System.Windows.Forms.Button();
             this.buttonCoding = new System.Windows.Forms.Button();
+            this.buttonDec = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // label1
@@ -42,18 +43,18 @@
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(13, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(286, 13);
+            this.label1.Size = new System.Drawing.Size(387, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Загрузите файл с текстом, который будет скрываться";
+            this.label1.Text = "Загрузите файл с текстом, который будет скрываться или файл с ключом";
             // 
             // label2
             // 
             this.label2.AutoSize = true;
             this.label2.Location = new System.Drawing.Point(13, 92);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(369, 13);
+            this.label2.Size = new System.Drawing.Size(117, 13);
             this.label2.TabIndex = 2;
-            this.label2.Text = "Загрузите аудиофайл, внутри которого будет производиться сокрытие";
+            this.label2.Text = "Загрузите аудиофайл";
             // 
             // buttonGetFile
             // 
@@ -104,11 +105,23 @@
             this.buttonCoding.UseVisualStyleBackColor = true;
             this.buttonCoding.Click += new System.EventHandler(this.buttonCoding_Click);
             // 
+            // buttonDec
+            // 
+            this.buttonDec.AutoSize = true;
+            this.buttonDec.Location = new System.Drawing.Point(130, 188);
+            this.buttonDec.Name = "buttonDec";
+            this.buttonDec.Size = new System.Drawing.Size(91, 23);
+            this.buttonDec.TabIndex = 8;
+            this.buttonDec.Text = "Декодировать";
+            this.buttonDec.UseVisualStyleBackColor = true;
+            this.buttonDec.Click += new System.EventHandler(this.buttonDec_Click);
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.buttonDec);
             this.Controls.Add(this.buttonCoding);
             this.Controls.Add(this.buttonText);
             this.Controls.Add(this.labelAudio);
@@ -132,6 +145,7 @@
         private System.Windows.Forms.Label labelAudio;
         private System.Windows.Forms.Button buttonText;
         private System.Windows.Forms.Button buttonCoding;
+        private System.Windows.Forms.Button buttonDec;
     }
 }
 

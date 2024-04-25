@@ -18,7 +18,7 @@ namespace Steganograf
         {
             Bits = new List<int>();
             BitsLen = 0;
-            OutputTxt = "message.txt";
+            OutputTxt = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\message.txt";
         }
 
         public void SetBitsLen()
@@ -99,13 +99,13 @@ namespace Steganograf
     {
         public Wave Signal { get; set; }
         public BinaryMessageDec Message { get; set; }
-        public Key Key { get; set; }
+        public KeyDec Key { get; set; }
 
         public int HiddenBitsPerSecond { get; set; }
         public int SamplesPerSection { get; set; }
         public int Diff { get; set; }
 
-        public SystemDec(Wave signal, BinaryMessageDec message, Key key)
+        public SystemDec(Wave signal, BinaryMessageDec message, KeyDec key)
         {
             Signal = signal;
             Message = message;
@@ -121,7 +121,7 @@ namespace Steganograf
             return Math.Sqrt(x.X * x.X + x.Y * x.Y);
         }
 
-        public string DecodeSection(List<double> section)
+        public string DecodeSection(List<byte> section)
         {
             List<double> extendedSection = new List<double>();
             int extension = 4;
@@ -130,20 +130,21 @@ namespace Steganograf
             {
                 for (int d = 0; d < extension; d++)
                 {
-                    extendedSection.Add(s - d);
+                    extendedSection.Add((double)s - d);
                 }
             }
 
             //Complex[] dft = new Complex[extendedSection.Count];
             //extendedSection.CopyTo(dft);
             //Fourier.Forward(dft);
+
             Complex[] dft = new Complex[extendedSection.Count];
             for (var i = 0; i < extendedSection.Count; i++)
             {
                 dft[i].X = (float)extendedSection[i];
                 dft[i].Y = 0;
             }
-            FastFourierTransform.FFT(true , 0 , dft);
+            FastFourierTransform.FFT(false , 0 , dft);
 
             List<Complex> sqrLg = new List<Complex>();
             foreach (Complex elem in dft)
@@ -156,9 +157,9 @@ namespace Steganograf
             }
 
             Complex[] ift = sqrLg.ToArray();
-            FastFourierTransform.FFT(false, 0, ift);
+            FastFourierTransform.FFT(true, 0, ift);
 
-            int i0 = extension * Key.delta[0], i1 = extension * Key.delta[1];
+            int i0 = extension * Key.Delta[0], i1 = extension * Key.Delta[1];
             int imax0 = i0, imax1 = i1;
 
             for (int d = -2; d <= 2; d++)
@@ -178,18 +179,19 @@ namespace Steganograf
 
         public void ExtractStegomessage()
         {
-            int counter = Key.begin;
+            int counter = Key.Begin;
             int sectionCounter = 0;
 
-            while (counter < Key.end)
+            while (counter < Key.End)
             {
                 //List<double> section = Signal.channels[0].GetRange(counter, SamplesPerSection);
                 //var segment = new ArraySegment<double>((double[])Signal.channels[0], counter, counter + SamplesPerSection);
-                List<double> segment = new List<double>();
-                for (int i = counter; i < counter + SamplesPerSection; i++)
-                {
-                    segment.Add(Signal.channels[1][i]);
-                }
+                //List<byte> segment = new List<byte>();
+                //for (int i = counter; i < counter + SamplesPerSection; i++)
+                //{
+                //    segment.Add(Signal.channels[0][i]);
+                //}
+                List<byte> segment = Signal.channels[0].GetRange(counter, counter + SamplesPerSection);
                 //List<double> section = segment.ToList<double>();
                 Message.Bits.Add(int.Parse(DecodeSection(segment)));
 

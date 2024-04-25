@@ -67,7 +67,7 @@ namespace Steganograf
             List<byte> content = new List<byte>();
             foreach (int a in instAmp)
             {
-                byte[] ampInBytes = BitConverter.GetBytes((short)a);
+                byte[] ampInBytes = BitConverter.GetBytes(a);
                 content.AddRange(ampInBytes);
             }
             return content.ToArray();
