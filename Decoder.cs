@@ -92,35 +92,38 @@ namespace Steganograf
             return Math.Sqrt(x.X * x.X + x.Y * x.Y);
         }
 
-        public string DecodeSection(List<byte> section)
+        public string DecodeSection(byte[] section)
         {
-            List<double> extendedSection = new List<double>();
+            double[] extendedSection = new double[section.Length];
             int extension = 4;
 
             foreach (double s in section)
             {
                 for (int d = 0; d < extension; d++)
                 {
-                    extendedSection.Add((double)s - d);
+                    extendedSection[d] = (s - d);
                 }
             }
 
-            Complex[] dft = new Complex[extendedSection.Count];
-            for (var i = 0; i < extendedSection.Count; i++)
+            Complex[] dft = new Complex[extendedSection.Length];
+            for (var i = 0; i < extendedSection.Length; i++)
             {
                 dft[i].X = (float)extendedSection[i];
                 dft[i].Y = 0;
             }
             FastFourierTransform.FFT(false , 0 , dft);
 
-            List<Complex> sqrLg = new List<Complex>();
-            foreach (Complex elem in dft)
+            Complex[] sqrLg = new Complex[dft.Length];
+            int x = 0;
+            foreach (Complex elem in dft)   // проблема. Преобразование длится до 5 секунд
             {
+                
                 ComplexLog buff = new ComplexLog(elem);
                 Complex nbuff = new Complex();
                 nbuff.X = (float)buff.comp.Real;
                 nbuff.Y = (float)buff.comp.Imaginary;
-                sqrLg.Add(nbuff);
+                sqrLg[x] = nbuff;
+                x++;
             }
 
             Complex[] ift = sqrLg.ToArray();
@@ -151,7 +154,7 @@ namespace Steganograf
 
             while (counter < Key.End)
             {
-                List<byte> segment = Signal.channels[0].GetRange(counter, counter + SamplesPerSection);
+                byte[] segment = Signal.channels[0].GetRange(counter, counter + SamplesPerSection).ToArray();
                 Message.Bits.Add(int.Parse(DecodeSection(segment)));
 
                 counter += SamplesPerSection;
