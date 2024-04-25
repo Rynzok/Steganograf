@@ -42,9 +42,11 @@ namespace Steganograf
             channels = new List<List<byte>>();
             for (int n = 0; n < channelsNum; n++)
             {
-                channels.Add(ExtractChannel(content, n, channelsNum));
+                channels.Add(ExtractChannel(content, n, channelsNum).ToList());
             }
-
+            //CreateAll(channels[0], "0");
+            //CreateAll(channels[1], "1");
+            
             stego = new List<byte>();
             switching = 3 * frameRate;
 
@@ -85,17 +87,26 @@ namespace Steganograf
 
                 waveOut.Write((byte[])content, 0, decreasingFrom); // begin
 
-                List<byte> list = content.Cast<byte>().ToList();
-                var dec = GetDecreasingAmplitude(list, decreasingFrom, key.Begin * channelsNum);
+                //List<byte> list = content.Cast<byte>().ToList();
+                //var dec = GetDecreasingAmplitude(list, decreasingFrom, key.Begin * channelsNum);
 
-                waveOut.Write(dec.ToArray(), 0, dec.Count); // decreasing
+                //waveOut.Write(dec.ToArray(), 0, dec.Count); // decreasing
 
                 waveOut.Write(stego.ToArray(), 0, stego.Count); //Write code signal
 
-                var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
-                waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
+                //var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
+                //waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
 
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
+            }
+        }
+
+        public void CreateAll(List<byte> siganal, string name)
+        {
+            string outputWav = string.Format("C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\out_{0}.wav", name);
+            using (WaveFileWriter waveOut = new WaveFileWriter(outputWav, wavein.WaveFormat))
+            {
+                waveOut.Write(siganal.ToArray(), 0, siganal.Count);
             }
         }
 
@@ -106,12 +117,15 @@ namespace Steganograf
             return buffer;
         }
 
-        private static List<byte> ExtractChannel(Array content, int channel, int channels)
+        private static byte[] ExtractChannel(Array content, int channel, int channelsNum)
         {
-            List<byte> channelContent = new List<byte>();
-            for (int i = channel; i < content.Length; i += channels)
+            byte[] channelContent = new byte[content.Length / 2];
+            for (int i = 0; i < content.Length/2; i ++)
             {
-                channelContent.Add((byte)content.GetValue(i));
+                int index = i;
+                //if (i == 0) index = 0;
+                if (channel == 1) index = i + content.Length / 2;
+                channelContent[i] = (byte)content.GetValue(index);
             }
             return channelContent;
         }

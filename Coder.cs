@@ -192,6 +192,7 @@ namespace Steganograf
                     secondCounter++;
                 }
             }
+            signal.CreateAll(stegoChannel, "Шифр");
 
             return stegoChannel;
         }
@@ -204,12 +205,14 @@ namespace Steganograf
             {
                 List<byte> segment = signal.channels[1].GetRange(key.Begin, key.End);
                 stegochannels.Add(segment);
+                signal.CreateAll(segment, "сегмент");
                 signal.stego = signal.UniteChannels(stegochannels);
             }
             else
             {
                 signal.stego = stegochannels[0];
             }
+            signal.CreateAll(signal.stego, "Шифр + Ориг");
 
             key.Save();
         }
