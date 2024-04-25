@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 
 
@@ -11,71 +12,79 @@ namespace Steganograf
     public class BinaryMessageDec
     {
         public List<int> Bits { get; set; }
-        public int BitsLen { get; set; }
         public string OutputTxt { get; set; }
 
         public BinaryMessageDec()
         {
             Bits = new List<int>();
-            BitsLen = 0;
             OutputTxt = "C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\message.txt";
-        }
-
-        public void SetBitsLen()
-        {
-            BitsLen = Bits.Count;
         }
 
         public void SaveText()
         {
             using (StreamWriter output = new StreamWriter(OutputTxt))
             {
-                int counter = 0;
+                string text = "";
                 string binOrd = "";
 
-                bool flag = false;
-                string left = "", right = "";
-                HammingDecoder code = new HammingDecoder();
+                //bool flag = false;
+                //string left = "", right = "";
+                //HammingDecoder code = new HammingDecoder();
 
-                SetBitsLen();
-
-                for (int i = 0; i < BitsLen; i++)
+                for (int i = 0; i < Bits.Count; i += 16)
                 {
-                    binOrd += Bits[i].ToString();
-                    counter++;
-                    if (counter == 7)
+                    for (int j = 0; j < 16; j++)
                     {
-                        if (flag)
-                        {
-                            right = code.Decode(binOrd);
-                            int symbOrd = Convert.ToInt32(left + right, 2);
-
-                            string letter;
-                            if (symbOrd == 152 || (0 <= symbOrd && symbOrd <= 2))
-                            {
-                                letter = " ";
-                            }
-                            else
-                            {
-                                byte[] byteOrd = BitConverter.GetBytes(symbOrd);
-                                //letter = System.Text.Encoding.GetEncoding("Windows-1251").GetString(byteOrd)[0];
-                                letter = Encoding.GetEncoding("windows-1251").GetString(byteOrd);
-                            }   
-
-                            output.Write(letter);
-
-                            flag = false;
-                            left = right = "";
-                        }
-                        else
-                        {
-                            left = code.Decode(binOrd);
-                            flag = true;
-                        }
-                        binOrd = "";
-                        counter = 0;
+                        binOrd += Bits[i + j];
                     }
+                    for (int k = 0; k < 16; k++)
+                    {
+                        binOrd += 0;
+                    }
+                    int bin = Convert.ToInt32(binOrd);
+                    char symbol = Convert.ToChar(bin);
+                    text += symbol;
                 }
+
+                output.WriteLine(text);
+
+                //for (int i = 0; i < BitsLen; i++)
+                //{
+                //    binOrd += Bits[i].ToString();
+                //    counter++;
+                //    if (counter == 7)
+                //    {
+                //        if (flag)
+                //        {
+                //            right = code.Decode(binOrd);
+                //            int symbOrd = Convert.ToInt32(left + right, 2);
+
+                //            string letter;
+                //            if (symbOrd == 152 || (0 <= symbOrd && symbOrd <= 2))
+                //            {
+                //                letter = " ";
+                //            }
+                //            else
+                //            {
+                //                byte[] byteOrd = BitConverter.GetBytes(symbOrd);
+                //                //letter = System.Text.Encoding.GetEncoding("Windows-1251").GetString(byteOrd)[0];
+                //                letter = Encoding.GetEncoding("windows-1251").GetString(byteOrd);
+                //            }   
+
+                //            output.Write(letter);
+
+                //            flag = false;
+                //            left = right = "";
+                //        }
+                //        else
+                //        {
+                //            left = code.Decode(binOrd);
+                //            flag = true;
+                //        }
+                //        binOrd = "";
+                //        counter = 0;
+                //    }
+                //}
             }
         }
     }

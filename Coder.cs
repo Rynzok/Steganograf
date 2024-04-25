@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +14,7 @@ namespace Steganograf
     {
         public List<int> bits;
         private StreamReader input;
-        private HammingCoder code;
+        //private HammingCoder code;
         public double average;
         public int bitsLength;
 
@@ -21,30 +22,57 @@ namespace Steganograf
         {
             bits = new List<int>();
             input = new StreamReader(inputTxt);
-            code = new HammingCoder();
-
-            foreach (char ch in input.ReadToEnd())
+            string inputText = input.ReadToEnd();
+            byte[] bytes = Encoding.ASCII.GetBytes(inputText);
+            foreach (byte b in bytes)
             {
-                int symbOrd = ch;
-                string binOrd = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
-
-                string left = binOrd.Substring(0, 4);
-                string encodedLeft = code.Encode(string.Join("", left.Select(c => int.Parse(c.ToString())).ToArray()));
-                foreach (string k in encodedLeft.Split())
+                string buff = Convert.ToString(b, 2).PadLeft(8, '0');
+                foreach (char b2 in buff)
                 {
-                    bits.Add(int.Parse(k));
-                }
-
-                string right = binOrd.Substring(4);
-                string encodedRight = code.Encode(string.Join("", right.Select(c => int.Parse(c.ToString())).ToArray()));
-                foreach (string k in encodedRight.Split())
-                {
-                    bits.Add(int.Parse(k));
+                    if (b2 == '0') bits.Add(0);
+                    else bits.Add(1);
                 }
             }
 
             average = bits.Average();
             bitsLength = bits.Count;
+            //code = new HammingCoder();
+
+            //foreach (char ch in input.ReadToEnd())
+            //{
+            //    int symbOrd = ch;
+            //    //string binOrd = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
+            //    string binOrd1 = Convert.ToString(symbOrd, 2).PadLeft(8, '0');
+            //    BitArray binOrd = new BitArray(new int[] { symbOrd });
+            //    for (int i = 0; i < binOrd.Length / 2; i++)
+            //    {
+            //        if (binOrd[i]) bits.Add(1);
+            //        else bits.Add(0);
+            //    }
+            //}
+            //List<int> s = new List<int>();
+            //foreach (bool b in binOrd)
+            //{
+            //    if (b) s.Add(1);
+            //    else s.Add(0);
+            //}
+            //bits.Add(s[0]);
+            //string left = binOrd.Substring(0, 4);
+            //string encodedLeft = code.Encode(string.Join("", left.Select(c => int.Parse(c.ToString())).ToArray()));
+            //foreach (string k in left.Split())
+            //{
+            //    bits.Add(int.Parse(k));
+            //}
+
+            //string right = binOrd.Substring(4);
+            //string encodedRight = code.Encode(string.Join("", right.Select(c => int.Parse(c.ToString())).ToArray()));
+            //foreach (string k in right.Split())
+            //{
+            //    bits.Add(int.Parse(k));
+            //}
+
+
+
         }
     }
 
