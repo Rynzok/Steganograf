@@ -25,66 +25,28 @@ namespace Steganograf
             using (StreamWriter output = new StreamWriter(OutputTxt))
             {
                 string text = "";
-                string binOrd = "";
+                string[] binOrd = new string[Bits.Count / 8];
 
-                //bool flag = false;
-                //string left = "", right = "";
-                //HammingDecoder code = new HammingDecoder();
-
-                for (int i = 0; i < Bits.Count; i += 16)
+                for (int i = 0; i < Bits.Count; i++)
                 {
-                    for (int j = 0; j < 16; j++)
+                    byte[] buff = new byte[8];
+                    int x = 0;
+                    for (int j = i * 8; j < i * 8 + 8; j++)
                     {
-                        binOrd += Bits[i + j];
+                        buff[x] = (byte)Bits[j];
+                        x++;
                     }
-                    for (int k = 0; k < 16; k++)
-                    {
-                        binOrd += 0;
-                    }
-                    int bin = Convert.ToInt32(binOrd);
-                    char symbol = Convert.ToChar(bin);
-                    text += symbol;
+                    binOrd[i] = Encoding.ASCII.GetString(buff);
+                    
+                }
+
+                foreach (string b in binOrd)
+                {
+                    text += b;
                 }
 
                 output.WriteLine(text);
 
-                //for (int i = 0; i < BitsLen; i++)
-                //{
-                //    binOrd += Bits[i].ToString();
-                //    counter++;
-                //    if (counter == 7)
-                //    {
-                //        if (flag)
-                //        {
-                //            right = code.Decode(binOrd);
-                //            int symbOrd = Convert.ToInt32(left + right, 2);
-
-                //            string letter;
-                //            if (symbOrd == 152 || (0 <= symbOrd && symbOrd <= 2))
-                //            {
-                //                letter = " ";
-                //            }
-                //            else
-                //            {
-                //                byte[] byteOrd = BitConverter.GetBytes(symbOrd);
-                //                //letter = System.Text.Encoding.GetEncoding("Windows-1251").GetString(byteOrd)[0];
-                //                letter = Encoding.GetEncoding("windows-1251").GetString(byteOrd);
-                //            }   
-
-                //            output.Write(letter);
-
-                //            flag = false;
-                //            left = right = "";
-                //        }
-                //        else
-                //        {
-                //            left = code.Decode(binOrd);
-                //            flag = true;
-                //        }
-                //        binOrd = "";
-                //        counter = 0;
-                //    }
-                //}
             }
         }
     }
@@ -143,10 +105,6 @@ namespace Steganograf
                 }
             }
 
-            //Complex[] dft = new Complex[extendedSection.Count];
-            //extendedSection.CopyTo(dft);
-            //Fourier.Forward(dft);
-
             Complex[] dft = new Complex[extendedSection.Count];
             for (var i = 0; i < extendedSection.Count; i++)
             {
@@ -193,15 +151,7 @@ namespace Steganograf
 
             while (counter < Key.End)
             {
-                //List<double> section = Signal.channels[0].GetRange(counter, SamplesPerSection);
-                //var segment = new ArraySegment<double>((double[])Signal.channels[0], counter, counter + SamplesPerSection);
-                //List<byte> segment = new List<byte>();
-                //for (int i = counter; i < counter + SamplesPerSection; i++)
-                //{
-                //    segment.Add(Signal.channels[0][i]);
-                //}
                 List<byte> segment = Signal.channels[0].GetRange(counter, counter + SamplesPerSection);
-                //List<double> section = segment.ToList<double>();
                 Message.Bits.Add(int.Parse(DecodeSection(segment)));
 
                 counter += SamplesPerSection;
