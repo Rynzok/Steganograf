@@ -24,10 +24,12 @@ namespace Steganograf
         {
             using (StreamWriter output = new StreamWriter(OutputTxt))
             {
-                string text = "";
-                string[] binOrd = new string[Bits.Count / 8];
+                //string text = "";
+                byte[] binOrd = new byte[Bits.Count / 8];
+                string byteOrd = "";
 
-                for (int i = 0; i < Bits.Count; i++)
+
+                for (int i = 0; i < Bits.Count/8; i++)
                 {
                     byte[] buff = new byte[8];
                     int x = 0;
@@ -36,16 +38,22 @@ namespace Steganograf
                         buff[x] = (byte)Bits[j];
                         x++;
                     }
-                    binOrd[i] = Encoding.ASCII.GetString(buff);
+                    string b = string.Concat(buff);
+                    byte symbol = Convert.ToByte(b, 2);
+                    binOrd[i] = symbol;
                     
-                }
 
-                foreach (string b in binOrd)
-                {
-                    text += b;
                 }
+                Encoding encoding = Encoding.GetEncoding("windows-1251");
+                byteOrd = encoding.GetString(binOrd);
 
-                output.WriteLine(text);
+
+                //foreach (string b in binOrd)
+                //{
+                //    text += b;
+                //}
+
+                output.WriteLine(byteOrd);
 
             }
         }
@@ -94,14 +102,15 @@ namespace Steganograf
 
         public string DecodeSection(byte[] section)
         {
-            double[] extendedSection = new double[section.Length];
+            double[] extendedSection = new double[section.Length * 4];
             int extension = 4;
-
+            int count = 0;
             foreach (double s in section)
             {
                 for (int d = 0; d < extension; d++)
                 {
-                    extendedSection[d] = (s - d);
+                    extendedSection[count] = (s - d);
+                    count++;
                 }
             }
 
@@ -111,23 +120,18 @@ namespace Steganograf
                 dft[i].X = (float)extendedSection[i];
                 dft[i].Y = 0;
             }
-            FastFourierTransform.FFT(false , 0 , dft);
+            FastFourierTransform.FFT(true, 0 , dft);
 
             Complex[] sqrLg = new Complex[dft.Length];
             int x = 0;
-            foreach (Complex elem in dft)   // проблема. Преобразование длится до 5 секунд
-            {
-                
-                ComplexLog buff = new ComplexLog(elem);
-                Complex nbuff = new Complex();
-                nbuff.X = (float)buff.comp.Real;
-                nbuff.Y = (float)buff.comp.Imaginary;
-                sqrLg[x] = nbuff;
+            foreach (Complex elem in dft)
+            {            
+                sqrLg[x] = elem;
                 x++;
             }
 
             Complex[] ift = sqrLg.ToArray();
-            FastFourierTransform.FFT(true, 0, ift);
+            FastFourierTransform.FFT(false, 0, ift);
 
             int i0 = extension * Key.Delta[0], i1 = extension * Key.Delta[1];
             int imax0 = i0, imax1 = i1;

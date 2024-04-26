@@ -87,15 +87,15 @@ namespace Steganograf
 
                 waveOut.Write((byte[])content, 0, decreasingFrom); // begin
 
-                //List<byte> list = content.Cast<byte>().ToList();
-                //var dec = GetDecreasingAmplitude(list, decreasingFrom, key.Begin * channelsNum);
+                List<byte> list = content.Cast<byte>().ToList();
+                var dec = GetDecreasingAmplitude(list, decreasingFrom, key.Begin * channelsNum);
 
-                //waveOut.Write(dec.ToArray(), 0, dec.Count); // decreasing
+                waveOut.Write(dec.ToArray(), 0, dec.Count); // decreasing
 
                 waveOut.Write(stego.ToArray(), 0, stego.Count); //Write code signal
 
-                //var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
-                //waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
+                var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
+                waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
 
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
             }
