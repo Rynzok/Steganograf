@@ -102,8 +102,9 @@ namespace Steganograf
 
         public string DecodeSection(byte[] section)
         {
-            double[] extendedSection = new double[section.Length * 4];
+            
             int extension = 4;
+            double[] extendedSection = new double[section.Length * extension];
             int count = 0;
             foreach (double s in section)
             {
@@ -120,18 +121,17 @@ namespace Steganograf
                 dft[i].X = (float)extendedSection[i];
                 dft[i].Y = 0;
             }
-            FastFourierTransform.FFT(true, 0 , dft);
+            FastFourierTransform.FFT(false, 0 , dft);
 
             Complex[] sqrLg = new Complex[dft.Length];
-            int x = 0;
-            foreach (Complex elem in dft)
-            {            
-                sqrLg[x] = elem;
-                x++;
+            for (int i = 0; i < dft.Length; i++) // Забыл, что у каждого надо ещё барть логарифм и возвадить в квадрат
+            {
+                dft[i].X = (float)Math.Pow(Math.Log(dft[i].X), 2);
+                sqrLg[i] = dft[i];
             }
 
             Complex[] ift = sqrLg.ToArray();
-            FastFourierTransform.FFT(false, 0, ift);
+            FastFourierTransform.FFT(true, 0, ift);
 
             int i0 = extension * Key.Delta[0], i1 = extension * Key.Delta[1];
             int imax0 = i0, imax1 = i1;

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -22,16 +23,34 @@ namespace Steganograf
             bits = new List<int>();
             input = new StreamReader(inputTxt);
             string inputText = input.ReadToEnd();
-            byte[] bytes = Encoding.ASCII.GetBytes(inputText);
-            foreach (byte b in bytes)
+
+            char[] symbolsArray = new char[inputText.Length];
+            for(int i = 0; i < inputText.Length; i ++)
             {
-                string buff = Convert.ToString(b, 2).PadLeft(8, '0');
-                foreach (char b2 in buff)
+                symbolsArray[i] = inputText[i];               
+            }
+            byte[] symbol = Encoding.GetEncoding(1251).GetBytes(symbolsArray);
+            foreach(byte s in symbol)
+            {
+                string binary = Convert.ToString(s, 2).PadLeft(8, '0');
+
+                for (int i = 0; i < binary.Length; i++)
                 {
-                    if (b2 == '0') bits.Add(0);
-                    else bits.Add(1);
+                    bits.Add((int)Char.GetNumericValue(binary[i]));
                 }
             }
+            
+
+            //byte[] bytes = Encoding.ASCII.GetBytes(inputText);
+            //foreach (byte b in bytes)
+            //{
+            //    string buff = Convert.ToString(b, 2).PadLeft(8, '0');
+            //    foreach (char b2 in buff)
+            //    {
+            //        if (b2 == '0') bits.Add(0);
+            //        else bits.Add(1);
+            //    }
+            //}
 
             average = bits.Average();
             bitsLength = bits.Count;

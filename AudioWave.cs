@@ -95,6 +95,7 @@ namespace Steganograf
                 waveOut.Write(stego.ToArray(), 0, stego.Count); //Write code signal
 
                 var inc = GetIncreasingAmplitude(list, key.End * channelsNum, increasingTo, channelsNum);
+
                 waveOut.Write(inc.ToArray(), 0, inc.Count);        // increasing
 
                 waveOut.Write((byte[])content, increasingTo, content.Length - increasingTo);      // end
