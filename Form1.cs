@@ -80,7 +80,7 @@ namespace Steganograf
             SystemDec systemDec = new SystemDec(waveDec, messageDec, keyDec);
             systemDec.ExtractStegomessage();
 
-            ImgConteiner img = new ImgConteiner(labelImg.Text);
+            ImgConteiner img = new ImgConteiner("C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\Миска_new.jpg");
             img.CreateImgFromArray(systemDec.Message.Bits);
 
             ImgConteiner stegoImg = new ImgConteiner("C:\\Users\\vkise\\OneDrive\\Рабочий стол\\Диплом\\Миска_new.jpg");

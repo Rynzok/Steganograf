@@ -75,16 +75,18 @@
             this.labelText.AutoSize = true;
             this.labelText.Location = new System.Drawing.Point(127, 53);
             this.labelText.Name = "labelText";
-            this.labelText.Size = new System.Drawing.Size(0, 13);
+            this.labelText.Size = new System.Drawing.Size(31, 13);
             this.labelText.TabIndex = 4;
+            this.labelText.Text = "Путь";
             // 
             // labelAudio
             // 
             this.labelAudio.AutoSize = true;
             this.labelAudio.Location = new System.Drawing.Point(124, 228);
             this.labelAudio.Name = "labelAudio";
-            this.labelAudio.Size = new System.Drawing.Size(0, 13);
+            this.labelAudio.Size = new System.Drawing.Size(31, 13);
             this.labelAudio.TabIndex = 5;
+            this.labelAudio.Text = "Путь";
             // 
             // buttonText
             // 
@@ -144,8 +146,9 @@
             this.labelImg.AutoSize = true;
             this.labelImg.Location = new System.Drawing.Point(127, 136);
             this.labelImg.Name = "labelImg";
-            this.labelImg.Size = new System.Drawing.Size(0, 13);
+            this.labelImg.Size = new System.Drawing.Size(31, 13);
             this.labelImg.TabIndex = 11;
+            this.labelImg.Text = "Путь";
             // 
             // Form1
             // 
