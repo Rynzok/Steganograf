@@ -36,6 +36,9 @@
             this.buttonText = new System.Windows.Forms.Button();
             this.buttonCoding = new System.Windows.Forms.Button();
             this.buttonDec = new System.Windows.Forms.Button();
+            this.label3 = new System.Windows.Forms.Label();
+            this.buttonGetImg = new System.Windows.Forms.Button();
+            this.labelImg = new System.Windows.Forms.Label();
             this.SuspendLayout();
             // 
             // label1
@@ -50,7 +53,7 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(13, 92);
+            this.label2.Location = new System.Drawing.Point(10, 183);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(117, 13);
             this.label2.TabIndex = 2;
@@ -59,7 +62,7 @@
             // buttonGetFile
             // 
             this.buttonGetFile.AutoSize = true;
-            this.buttonGetFile.Location = new System.Drawing.Point(16, 127);
+            this.buttonGetFile.Location = new System.Drawing.Point(13, 218);
             this.buttonGetFile.Name = "buttonGetFile";
             this.buttonGetFile.Size = new System.Drawing.Size(99, 23);
             this.buttonGetFile.TabIndex = 3;
@@ -78,7 +81,7 @@
             // labelAudio
             // 
             this.labelAudio.AutoSize = true;
-            this.labelAudio.Location = new System.Drawing.Point(127, 137);
+            this.labelAudio.Location = new System.Drawing.Point(124, 228);
             this.labelAudio.Name = "labelAudio";
             this.labelAudio.Size = new System.Drawing.Size(0, 13);
             this.labelAudio.TabIndex = 5;
@@ -97,7 +100,7 @@
             // buttonCoding
             // 
             this.buttonCoding.AutoSize = true;
-            this.buttonCoding.Location = new System.Drawing.Point(16, 188);
+            this.buttonCoding.Location = new System.Drawing.Point(13, 279);
             this.buttonCoding.Name = "buttonCoding";
             this.buttonCoding.Size = new System.Drawing.Size(89, 23);
             this.buttonCoding.TabIndex = 7;
@@ -108,7 +111,7 @@
             // buttonDec
             // 
             this.buttonDec.AutoSize = true;
-            this.buttonDec.Location = new System.Drawing.Point(130, 188);
+            this.buttonDec.Location = new System.Drawing.Point(127, 279);
             this.buttonDec.Name = "buttonDec";
             this.buttonDec.Size = new System.Drawing.Size(91, 23);
             this.buttonDec.TabIndex = 8;
@@ -116,11 +119,42 @@
             this.buttonDec.UseVisualStyleBackColor = true;
             this.buttonDec.Click += new System.EventHandler(this.buttonDec_Click);
             // 
+            // label3
+            // 
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(13, 91);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(130, 13);
+            this.label3.TabIndex = 9;
+            this.label3.Text = "Загрузите изображение";
+            // 
+            // buttonGetImg
+            // 
+            this.buttonGetImg.AutoSize = true;
+            this.buttonGetImg.Location = new System.Drawing.Point(16, 126);
+            this.buttonGetImg.Name = "buttonGetImg";
+            this.buttonGetImg.Size = new System.Drawing.Size(99, 23);
+            this.buttonGetImg.TabIndex = 10;
+            this.buttonGetImg.Text = "Загрузка файла";
+            this.buttonGetImg.UseVisualStyleBackColor = true;
+            this.buttonGetImg.Click += new System.EventHandler(this.buttunGetImg_Click);
+            // 
+            // labelImg
+            // 
+            this.labelImg.AutoSize = true;
+            this.labelImg.Location = new System.Drawing.Point(127, 136);
+            this.labelImg.Name = "labelImg";
+            this.labelImg.Size = new System.Drawing.Size(0, 13);
+            this.labelImg.TabIndex = 11;
+            // 
             // Form1
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(784, 461);
+            this.Controls.Add(this.labelImg);
+            this.Controls.Add(this.buttonGetImg);
+            this.Controls.Add(this.label3);
             this.Controls.Add(this.buttonDec);
             this.Controls.Add(this.buttonCoding);
             this.Controls.Add(this.buttonText);
@@ -146,6 +180,9 @@
         private System.Windows.Forms.Button buttonText;
         private System.Windows.Forms.Button buttonCoding;
         private System.Windows.Forms.Button buttonDec;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.Button buttonGetImg;
+        private System.Windows.Forms.Label labelImg;
     }
 }
 

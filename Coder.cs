@@ -1,13 +1,8 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Security.AccessControl;
-using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
 
 namespace Steganograf
 {
@@ -25,12 +20,12 @@ namespace Steganograf
             string inputText = input.ReadToEnd();
 
             char[] symbolsArray = new char[inputText.Length];
-            for(int i = 0; i < inputText.Length; i ++)
+            for (int i = 0; i < inputText.Length; i++)
             {
-                symbolsArray[i] = inputText[i];               
+                symbolsArray[i] = inputText[i];
             }
             byte[] symbol = Encoding.GetEncoding(1251).GetBytes(symbolsArray);
-            foreach(byte s in symbol)
+            foreach (byte s in symbol)
             {
                 string binary = Convert.ToString(s, 2).PadLeft(8, '0');
 
@@ -39,22 +34,10 @@ namespace Steganograf
                     bits.Add((int)Char.GetNumericValue(binary[i]));
                 }
             }
-            
-
-            //byte[] bytes = Encoding.ASCII.GetBytes(inputText);
-            //foreach (byte b in bytes)
-            //{
-            //    string buff = Convert.ToString(b, 2).PadLeft(8, '0');
-            //    foreach (char b2 in buff)
-            //    {
-            //        if (b2 == '0') bits.Add(0);
-            //        else bits.Add(1);
-            //    }
-            //}
 
             average = bits.Average();
             bitsLength = bits.Count;
-            
+
         }
     }
 
@@ -83,8 +66,8 @@ namespace Steganograf
 
     public class Systema
     {
-        public Wave signal;
-        private BinaryMessage message;
+        public AudioWave signal;
+        private int[] message;
         public Key key;
 
         private double echoVolume = 0.3;
@@ -99,18 +82,16 @@ namespace Steganograf
         private double volume1;
 
         private int samplesPerSection;
-        private int diff;
 
         private int samplesPerMessage;
-        private List<List<byte>> stegochannels;
 
-        public Systema(Wave signal, BinaryMessage message, Key key)
+        public Systema(AudioWave signal, int[] message, Key key)
         {
             this.signal = signal;
             this.message = message;
             this.key = key;
 
-            if (message.average <= 0.5)
+            if (message.Average() <= 0.5)
             {
                 volume0 = volumeMax;
                 volume1 = volumeMin;
@@ -124,20 +105,16 @@ namespace Steganograf
             }
 
             samplesPerSection = signal.frameRate / hiddenBitsPerSecond;
-            diff = signal.frameRate % hiddenBitsPerSecond;
 
             samplesPerMessage = CountSamples();
             key.Begin = GetBegin();
             key.End = key.Begin + samplesPerMessage;
-
-            stegochannels = new List<List<byte>>();
         }
 
         private int CountSamples()
         {
-            int divPart = message.bitsLength / hiddenBitsPerSecond * signal.frameRate;
-            int modPart = message.bitsLength % hiddenBitsPerSecond * samplesPerSection;
-            return divPart + modPart;
+            int divPart = message.Length * 86 + 86;
+            return divPart;
         }
 
         private int GetBegin()
@@ -154,88 +131,50 @@ namespace Steganograf
             return randSecond * signal.frameRate;
         }
 
-        private double SmoothingSignal(int i, int position)
-        {
-            int x = message.bits[i];
-            double a = 0.0005;
-            double b = 0.9995;
-            double k = (double)position / samplesPerSection;
-            if ((a < k && k < b) || (a > k && i != 0 && message.bits[i - 1] == x) ||
-                (k > b && i + 1 != message.bitsLength && message.bits[i + 1] == x))
-            {
-                return 1.0;
-            }
-            if (a >= k)
-            {
-                return k / a;
-            }
-            if (k >= b)
-            {
-                return (1.0 - k) / (1.0 - b);
-            }
-            return 0.0;
-        }
-
-        private double GetEcho(List<byte> channel, int k, int n, int counter)
-        {
-            double echo0 = volume0 * echoVolume * (k >= key.Delta[0] ? channel[k - key.Delta[0]] : 0) *
-                           (1 - SmoothingSignal(counter, k - n));
-            double echo1 = volume1 * echoVolume * (k >= key.Delta[1] ? channel[k - key.Delta[1]] : 0) *
-                           SmoothingSignal(counter, k - n);
-            return echo0 + echo1;
-        }
-
-        private List<byte> EmbedStegoMessage(List<byte> channel)
-        {
-            int secondCounter = key.Begin / signal.frameRate;
-            int sectionCounter = 0;
-            double volume = 1.0 - echoVolume * volumeMax;
-            List<byte> stegoChannel = new List<byte>();
-
-            for (int counter = 0; counter < message.bitsLength; counter++)
-            {
-                int n = secondCounter * signal.frameRate + sectionCounter * samplesPerSection;
-                for (int k = n; k < n + samplesPerSection; k++)
-                {
-                    stegoChannel.Add((byte)Math.Floor(volume * channel[k] + GetEcho(channel, k, n, counter)));
-                }
-                sectionCounter++;
-
-                if (sectionCounter == hiddenBitsPerSecond)
-                {
-                    for (int j = n + samplesPerSection; j < n + samplesPerSection + diff; j++)
-                    {
-                        stegoChannel.Add((byte)Math.Floor(volume * channel[j] + GetEcho(channel, j, n, counter)));
-                    }
-                    sectionCounter = 0;
-                    secondCounter++;
-                }
-            }
-            signal.CreateAll(stegoChannel, "Шифр");
-
-            return stegoChannel;
-        }
 
         public void CreateStego()
         {
-            stegochannels.Add(EmbedStegoMessage(signal.channels[0]));
 
-            if (signal.channelsNum == 2)
-            {
-                List<byte> segment = signal.channels[1].GetRange(key.Begin, key.End);
-                stegochannels.Add(segment);
-                signal.CreateAll(segment, "сегмент");
-                signal.stego = signal.UniteChannels(stegochannels);
-            }
-            else
-            {
-                signal.stego = stegochannels[0];
-            }
-            signal.CreateAll(signal.stego, "Шифр + Ориг");
+            byte[] coderSignal = new byte[key.End - key.Begin];
+            Array.Copy(signal.channels[0], key.Begin, coderSignal, 0, key.End - key.Begin);
+
+            signal.stego = EmdebStegoMes(coderSignal);
+
+            Array.Copy(signal.stego, 0, signal.channels[0], key.Begin, key.End - key.Begin);
 
             key.Save();
         }
-    }
 
+        private byte[] EmdebStegoMes(byte[] content)
+        {
+            int i = 0;
+            byte[] stego = new byte[content.Length];
+            for (int j = 0; j < stego.Length; j++)
+            {
+                stego[j] = content[j];
+                if (j % 86 == 0 && j != 0)
+                {
+                    if (message[i] == 0)
+                    {
+                        stego[j - 30] = (byte)Math.Abs(stego[j] - 30);
+                        if (stego[j - 40] == (byte)Math.Abs(stego[j] - 40))
+                        {
+                            stego[j - 40]--;
+                        }
+                    }
+                    else
+                    {
+                        stego[j - 40] = (byte)Math.Abs(stego[j] - 40);
+                        if (stego[j - 30] == (byte)Math.Abs(stego[j] - 30))
+                        {
+                            stego[j - 30]--;
+                        }
+                    }
+                    i++;
+                }
+            }
+            return stego;
+        }
+    }
 
 }
